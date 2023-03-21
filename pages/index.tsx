@@ -3,50 +3,87 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useEffect, useRef } from 'react'
-import Modal from '../components/Modal'
 import cloudinary from '../utils/cloudinary'
 import getBase64ImageUrl from '../utils/generateBlurPlaceholder'
-import type { ImageProps } from '../utils/types'
+// import type { ImageProps } from '../utils/types'
 import { useLastViewedPhoto } from '../utils/useLastViewedPhoto'
 
+import { motion } from 'framer-motion'
+// import { useRouter } from 'next/router'
+import { useRef, useState } from 'react'
+import useKeypress from 'react-use-keypress'
+import type { ImageProps } from '../utils/types'
+import MotionImage from '../components/MotionImage'
+
+
 const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
+
+
+  let overlayRef = useRef()
   const router = useRouter()
+
   const { photoId } = router.query
+
+  const [direction, setDirection] = useState(0)
+  const [index, setIndex] = useState(0)
+
+  function handleClose() {
+    router.push('/', undefined, { shallow: true })
+  }
+
+  function changePhotoId(newVal: number) {
+    if (newVal > index) {
+      setDirection(1)
+    } else {
+      setDirection(-1)
+    }
+    setIndex(newVal)
+    // router.push(
+    //   {
+    //     query: { photoId: newVal },
+    //   },
+    //   `/p/${newVal}`,
+    //   { shallow: true }
+    // )
+  }
+
+  function useButton(dir: boolean) {
+    if (dir && index +1 < images.length) {
+      changePhotoId(index + 1)
+    }
+    else if (!dir && index > 0) {
+      changePhotoId(index - 1)
+    }
+  }
+
+  useKeypress('ArrowRight', () => {
+    if (index + 1 < images.length) {
+      changePhotoId(index + 1)
+    }
+  })
+
+  useKeypress('ArrowLeft', () => {
+    if (index > 0) {
+      changePhotoId(index - 1)
+    }
+  })
+
+  const [selectedId, setSelectedId] = useState(null)
+
+
 
   return (
     <>
       <Head>
         <title>Thomas Mastromonaco Photography</title>
-        <meta
-          property="og:image"
-          content="https://nextjsconf-pics.vercel.app/og-image.png"
-        />
-        <meta
-          name="twitter:image"
-          content="https://nextjsconf-pics.vercel.app/og-image.png"
-        />
-      </Head>    
-      <main className="mx-auto max-w-[1960px] p-4">
-        {photoId && (
-          <Modal
-            images={images}
-          />
-        )}
-        <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-            <Link
-              key={images[0].id}
-              href={`/?photoId=${images[0].id}`}
-              as={`/p/${images[0].id}`}
-              shallow
-              className="after:content group relative mb-5 block w-full cursor-zoom-in after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:shadow-highlight"
-            >
-              <text className="p-6 text-center text-white/80 sm:p-12">
-                Open Photos 
-              </text>
-            </Link>
-        </div>
-      </main>
+      </Head>
+      <MotionImage
+        index={index}
+        direction={direction}
+        images={images}
+        changePhotoId={changePhotoId}
+        navigation={true}
+      />
       <footer className="p-6 text-center text-white/80 sm:p-12">
         Thomas Mastromonaco
       </footer>

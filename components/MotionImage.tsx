@@ -13,18 +13,18 @@ import { useSwipeable } from 'react-swipeable'
 import { variants } from '../utils/animationVariants'
 import downloadPhoto from '../utils/downloadPhoto'
 import { range } from '../utils/range'
-import type { ImageProps, SharedModalProps } from '../utils/types'
+import type { ImageProps, MotionImageProps } from '../utils/types'
 import Twitter from './Icons/Twitter'
 
-export default function SharedModal({
+export default function MotionImage({
   index,
   images,
   changePhotoId,
-  closeModal,
+
   navigation,
   currentPhoto,
   direction,
-}: SharedModalProps) {
+}: MotionImageProps) {
   const [loaded, setLoaded] = useState(false)
 
   let filteredImages = images?.filter((img: ImageProps) =>
@@ -50,8 +50,13 @@ export default function SharedModal({
   return (
     <MotionConfig
       transition={{
-        x: { type: 'spring', stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 },
+        delay: 0.1,
+        x: { duration: 0.8, type: 'spring', stiffness: 75, damping: 15 },
+        opacity: { duration: .4 },
+        default: {
+          duration: 0.3,
+          ease: [0, 0.71, 0.2, 1.01]
+        }
       }}
     >
       <div
@@ -65,7 +70,7 @@ export default function SharedModal({
               <motion.div
                 key={index}
                 custom={direction}
-                variants={variants}
+                variants={variants} // direction determines animation
                 initial="enter"
                 animate="center"
                 exit="exit"
@@ -92,6 +97,7 @@ export default function SharedModal({
         <div className="absolute inset-0 mx-auto flex max-w-7xl items-center justify-center">
           {/* Buttons */}
           {loaded && (
+            // TODO: set to full height
             <div className="relative aspect-[3/2] max-h-full w-full">
               {navigation && (
                 <>
@@ -115,53 +121,6 @@ export default function SharedModal({
                   )}
                 </>
               )}
-              <div className="absolute top-0 right-0 flex items-center gap-2 p-3 text-white">
-                {navigation ? (
-                  <a
-                    href={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${currentImage.public_id}.${currentImage.format}`}
-                    className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
-                    target="_blank"
-                    title="Open fullsize version"
-                    rel="noreferrer"
-                  >
-                    <ArrowTopRightOnSquareIcon className="h-5 w-5" />
-                  </a>
-                ) : (
-                  <a
-                    href={`https://twitter.com/intent/tweet?text=Check%20out%20this%20pic%20from%20Next.js%20Conf!%0A%0Ahttps://nextjsconf-pics.vercel.app/p/${index}`}
-                    className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
-                    target="_blank"
-                    title="Open fullsize version"
-                    rel="noreferrer"
-                  >
-                    <Twitter className="h-5 w-5" />
-                  </a>
-                )}
-                <button
-                  onClick={() =>
-                    downloadPhoto(
-                      `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/${currentImage.public_id}.${currentImage.format}`,
-                      `${index}.jpg`
-                    )
-                  }
-                  className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
-                  title="Download fullsize version"
-                >
-                  <ArrowDownTrayIcon className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="absolute top-0 left-0 flex items-center gap-2 p-3 text-white">
-                <button
-                  onClick={() => closeModal()}
-                  className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
-                >
-                  {navigation ? (
-                    <XMarkIcon className="h-5 w-5" />
-                  ) : (
-                    <ArrowUturnLeftIcon className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
             </div>
           )}
           {/* Bottom Nav bar */}
