@@ -1,35 +1,20 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
 import cloudinary from '../utils/cloudinary'
 import getBase64ImageUrl from '../utils/generateBlurPlaceholder'
-// import type { ImageProps } from '../utils/types'
-import { useLastViewedPhoto } from '../utils/useLastViewedPhoto'
-
-import { motion } from 'framer-motion'
-// import { useRouter } from 'next/router'
-import { useRef, useState } from 'react'
 import useKeypress from 'react-use-keypress'
 import type { ImageProps } from '../utils/types'
 import MotionImage from '../components/MotionImage'
+import { useState } from 'react'
+import Header from '../components/header'
 
 
 const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
-
-
-  let overlayRef = useRef()
   const router = useRouter()
-
-  const { photoId } = router.query
 
   const [direction, setDirection] = useState(0)
   const [index, setIndex] = useState(0)
-
-  function handleClose() {
-    router.push('/', undefined, { shallow: true })
-  }
 
   function changePhotoId(newVal: number) {
     if (newVal > index) {
@@ -68,15 +53,12 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
     }
   })
 
-  const [selectedId, setSelectedId] = useState(null)
-
-
-
   return (
     <>
       <Head>
         <title>Thomas Mastromonaco Photography</title>
       </Head>
+      <Header />
       <MotionImage
         index={index}
         direction={direction}
@@ -84,9 +66,6 @@ const Home: NextPage = ({ images }: { images: ImageProps[] }) => {
         changePhotoId={changePhotoId}
         navigation={true}
       />
-      <footer className="p-6 text-center text-white/80 sm:p-12">
-        Thomas Mastromonaco
-      </footer>
     </>
   )
 }
